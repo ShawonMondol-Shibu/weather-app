@@ -1,65 +1,105 @@
+"use client";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { MapPin } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [query, setQuery] = useState("netrakona");
+  const [search, setSearch] = useState("netrakona");
+  const [current, setCurrent] = useState({});
+  const [location, setLocation] = useState({});
+
+  // ✅ debounce the search input
+  useEffect(() => {
+    const delay = setTimeout(() => setSearch(query), 800);
+    return () => clearTimeout(delay);
+  }, [query]);
+
+  // ✅ fetch weather data
+  useEffect(() => {
+    if (!search) return;
+    fetch(
+      `https://api.weatherapi.com/v1/current.json?key=9b241b7850f44fbe82c180506250111&q=${search}&aqi=yes`,
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.current && data.location) {
+          setCurrent(data.current);
+          setLocation(data.location);
+        }
+      })
+      .catch((err) => console.error("Fetch error:", err));
+  }, [search]);
+
+  const condition = current?.condition?.text?.toLowerCase() || "";
+  const isDay = current?.is_day === 1;
+
+  // ✅ map condition to image
+  const getWeatherIcon = () => {
+    if (condition.includes("cloudy")) return "/images/Icon=Cloudy.svg";
+    if (condition.includes("partly")) return "/images/Icon=Partly Cloudy.svg";
+    if (condition.includes("sunny") && isDay) return "/images/Icon=Sunny.svg";
+    if (condition.includes("clear") && isDay) return "/images/Icon=Sunny.svg";
+    if (!isDay) return "/images/Icon=Night.svg";
+    if (condition.includes("snow")) return "/images/Icon=Snow.svg";
+    return "/images/Icon=Partly Cloudy.svg";
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <main className="flex items-center justify-center min-h-screen bg-[url(/images/lake.png)] bg-cover bg-no-repeat">
+      <Card className="w-fit min-w-md m-auto border-none bg-transparent rounded-3xl backdrop-brightness-110 neumorphism backdrop-blur">
+        <CardContent>
+          <InputGroup className="border-none neumorphism  ">
+            <InputGroupAddon>
+              <MapPin />
+            </InputGroupAddon>
+            <InputGroupInput
+              type="search"
+              placeholder="Enter location..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          </InputGroup>
+
+          <div className="flex items-end justify-center gap-10 py-5">
+            <Image
+              src={getWeatherIcon()}
+              alt={condition || "Weather"}
+              width={1000}
+              height={1000}
+              className="w-60 h-60 drop-shadow-2xl"
+            />
+
+            <div className="space-y-2">
+              <Image
+                width={50}
+                height={50}
+                src={
+                  isDay ? "/images/Icon=Sunny.svg" : "/images/Icon=Night.svg"
+                }
+                alt="day-night"
+                className="drop-shadow-2xl"
+              />
+              <div>
+                <span className="text-xl space-x-5">
+                  {current?.temp_c ?? 0}
+                  <small>°C</small> / {current?.temp_f ?? 0}
+                  <small>°F</small>
+                </span>
+                <p>
+                  {location?.name || "City"} / {location?.country || "Country"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </main>
   );
 }
