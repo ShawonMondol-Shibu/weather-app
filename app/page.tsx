@@ -1,4 +1,5 @@
 "use client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import {
   InputGroup,
@@ -9,13 +10,31 @@ import { MapPin } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
+// ✅ types for data
+interface WeatherCondition {
+  text: string;
+  icon?: string;
+}
+
+interface CurrentWeather {
+  temp_c: number;
+  temp_f: number;
+  is_day: number;
+  condition: WeatherCondition;
+}
+
+interface LocationData {
+  name: string;
+  country: string;
+}
+
 export default function Home() {
   const [query, setQuery] = useState("netrakona");
   const [search, setSearch] = useState("netrakona");
-  const [current, setCurrent] = useState({});
-  const [location, setLocation] = useState({});
+  const [current, setCurrent] = useState<CurrentWeather | null>(null);
+  const [location, setLocation] = useState<LocationData | null>(null);
 
-  // ✅ debounce the search input
+  // ✅ debounce
   useEffect(() => {
     const delay = setTimeout(() => setSearch(query), 800);
     return () => clearTimeout(delay);
@@ -24,14 +43,23 @@ export default function Home() {
   // ✅ fetch weather data
   useEffect(() => {
     if (!search) return;
+
+    const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+    if (!apiKey) {
+      console.error("Missing NEXT_PUBLIC_API_KEY");
+      return;
+    }
+
     fetch(
-      `https://api.weatherapi.com/v1/current.json?key=9b241b7850f44fbe82c180506250111&q=${search}&aqi=yes`,
+      `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${search}&aqi=yes`
     )
       .then((res) => res.json())
       .then((data) => {
-        if (data && data.current && data.location) {
+        if (data?.current && data?.location) {
           setCurrent(data.current);
           setLocation(data.location);
+        } else {
+          console.warn("Invalid data:", data);
         }
       })
       .catch((err) => console.error("Fetch error:", err));
@@ -55,7 +83,7 @@ export default function Home() {
     <main className="flex items-center justify-center min-h-screen bg-[url(/images/lake.png)] bg-cover bg-no-repeat">
       <Card className="w-fit min-w-md m-auto border-none bg-transparent rounded-3xl backdrop-brightness-110 neumorphism backdrop-blur">
         <CardContent>
-          <InputGroup className="border-none neumorphism  ">
+          <InputGroup className="border-none neumorphism">
             <InputGroupAddon>
               <MapPin />
             </InputGroupAddon>
