@@ -115,7 +115,7 @@ export default function Home() {
               alt={condition || "Weather"}
               width={1000}
               height={1000}
-              className="w-60 h-60 drop-shadow-2xl"
+              className="w-60 h-60 drop-shadow-xl drop-shadow-black/50"
             />
 
             <div className="space-y-2 text-white font-medium">
@@ -126,15 +126,15 @@ export default function Home() {
                   isDay ? "/images/Icon=Sunny.svg" : "/images/Icon=Night.svg"
                 }
                 alt="day-night"
-                className="drop-shadow-2xl"
+                className="drop-shadow-md drop-shadow-black/50"
               />
               <div>
-                <span className="text-xl space-x-5">
+                <span className="text-xl space-x-5 drop-shadow drop-shadow-black/20">
                   {current?.temp_c ?? 0}
                   <small>°C</small> / {current?.temp_f ?? 0}
                   <small>°F</small>
                 </span>
-                <p>
+                <p className="drop-shadow drop-shadow-black/20">
                   {location?.name || "City"} / {location?.country || "Country"}
                 </p>
               </div>
