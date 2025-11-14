@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   InputGroup,
   InputGroupAddon,
@@ -80,15 +86,15 @@ export default function Home() {
   };
 
   return (
-    <main className="flex items-center justify-center min-h-screen">
-            <Image
-              src={'/images/lake.png'}
-              alt={condition || "Weather"}
-              width={1000}
-              height={1000}
-              className="w-full min-h-screen object-cover fixed drop-shadow-2xl"
-            />
-      
+    <main className="flex items-center justify-center min-h-screen p-5">
+      <Image
+        src={"/images/lake.png"}
+        alt={condition || "Weather"}
+        width={1000}
+        height={1000}
+        className="w-full min-h-screen object-cover fixed drop-shadow-2xl"
+      />
+
       <Card className="w-fit min-w-md m-auto border-none bg-transparent rounded-3xl backdrop-saturate-150 backdrop-brightness-110 neumorphism backdrop-blur">
         <CardContent>
           <InputGroup className="border-none neumorphism">
@@ -112,7 +118,7 @@ export default function Home() {
               className="w-60 h-60 drop-shadow-2xl"
             />
 
-            <div className="space-y-2">
+            <div className="space-y-2 text-white font-medium">
               <Image
                 width={50}
                 height={50}
@@ -135,9 +141,11 @@ export default function Home() {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="text-center">
+        <CardFooter className="text-center text-white">
+          <p>
 
-International Weathers
+          International weather application
+          </p>
         </CardFooter>
       </Card>
     </main>
